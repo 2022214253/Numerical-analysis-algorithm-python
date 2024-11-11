@@ -1,0 +1,36 @@
+import sympy as sp
+from sympy import symbols, Eq, solve  
+class gauss:
+    def __init__(self,n,f,interval,p):
+        self.n=n
+        if isinstance(f,(int,float)):
+            self.f=sp.Integer(f)
+        self.b,self.c=interval
+        self.x=sp.symbols('x')
+        self.p=p
+        self.a=sp.symbols(' '.join(['a'+str(i) for i in range(n)]))
+        self.w=self.x**n+sp.Add(*[self.a[i]*self.x**(n-i-1) for i in range(n)])
+        self.wn=None
+        self.X=sp.symbols(' '.join(['x'+str(i) for i in range(n)]))
+        self.wx=sp.prod([self.x-self.X[i] for i in range(n)])
+        self.x_res=None
+        self.A=sp.symbols(' '.join(['A'+str(i) for i in range(n)]))
+    def compute_wn(self):
+        eps=[]
+        for i in range(self.n):
+            add=self.x**i
+            eps.append(Eq(sp.integrate(add*self.p*self.w,(self.x,self.b,self.c)),0))
+        self.wn=solve(tuple(eps),self.a)
+    def compute_xn(self):
+        self.compute_wn()
+        if self.n>3:
+            raise(Exception('n>3,这个次数太高了'))
+        self.x_res=solve(Eq(self.w.subs(self.wn),self.wx),self.X)[0]
+    def compute_res(self):
+        self.compute_wn()
+        self.compute_xn()
+        exception=[]
+        for i in range(self.n):
+            p=self.x**i
+            exception.append(Eq(sp.integrate(p*self.p,(self.x,self.b,self.c)),sp.Add(*[self.A[j]*self.x_res[j]**i for j in range(self.n)])))
+        self.A=solve(tuple(exception),self.A)
