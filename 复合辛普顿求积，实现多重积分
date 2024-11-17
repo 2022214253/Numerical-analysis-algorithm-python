@@ -1,0 +1,16 @@
+class xinpudun:
+    def __init__(self,f,interval,x):
+        self.f=f
+        self.interval=interval
+        self.x=x
+    def fit(self,n):
+        a,b=self.interval
+        a,b=float(a),float(b)
+        interval1=np.linspace(a,b,n)
+        h=(b-a)/n
+        ans=sp.Add(*[self.f.subs({self.x:val}) for  val in interval1[::2]])*2
+        ans-=self.f.subs({self.x:a})+self.f.subs({self.x:b})
+        ans+=4*sp.Add(*[self.f.subs({self.x:val}) for  val in interval1[1::2]])
+        return ans*h/6
+    def __call__(self, n):
+        return self.fit(n)
